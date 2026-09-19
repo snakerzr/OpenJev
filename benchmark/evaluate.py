@@ -236,7 +236,7 @@ def metrics_summary(
     concurrency: int = 1,
     elapsed_s: float | None = None,
 ) -> dict[str, Any]:
-    """Сводка метрик для таблиц сравнения (``run_comparison.py``)."""
+    """Сводка метрик для отчёта и внешних CI-скриптов."""
     total_q = metrics.choice_total + metrics.score_total + metrics.noul_total
     viol_rate = (metrics.schema_errors / total_q) if total_q else float("nan")
 

@@ -1,5 +1,7 @@
 # Архитектура и собственная реализация System One Decision Engine (Self-Hosted Jev)
 
+> **Репозиторий OpenJev (v0.2+):** продакшен-реализация — легковесный **API gateway** (`openjev/engine.py`) к vLLM: промптинг, `truncate_prompt_tokens`, срез `top_logprobs`, softmax в `openjev/decoding.py`. Локально PyTorch не используется.
+
 Инженерное руководство по созданию локального или приватного аналога **TypeSafe Jev** на базе открытых трансформеров (Llama, Qwen, Mistral). Руководство воспроизводит семантику **Decisions API** с тремя примитивными типами (`choice`, `score`, `noul`) за один проход инференса (Single Forward Pass) без авторегрессионной генерации токенов.
 
 ---

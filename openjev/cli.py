@@ -10,28 +10,15 @@ import uvicorn
 
 from openjev.server import DEFAULT_MODEL_ID, DEFAULT_VLLM_URL, create_app
 
-PRODUCTION_MODEL_ID = "Qwen/Qwen2.5-7B-Instruct"
-
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="OpenJev Decisions API — System One inference server (0 output tokens).",
+        description="OpenJev Decisions API — vLLM gateway (System One, 0 output tokens).",
     )
     parser.add_argument(
         "--model",
         default=os.environ.get("OPENJEV_MODEL", DEFAULT_MODEL_ID),
-        help=(
-            f"Hugging Face model id (default: {DEFAULT_MODEL_ID}; "
-            f"production: {PRODUCTION_MODEL_ID})."
-        ),
-    )
-    parser.add_argument(
-        "--backend",
-        "--engine-type",
-        dest="backend",
-        choices=["torch", "vllm"],
-        default=os.environ.get("OPENJEV_BACKEND", "torch"),
-        help="Inference backend: local PyTorch or vLLM OpenAI API gateway.",
+        help=f"Hugging Face model id (tokenizer + vLLM model name, default: {DEFAULT_MODEL_ID}).",
     )
     parser.add_argument(
         "--vllm-url",
@@ -50,23 +37,26 @@ def parse_args() -> argparse.Namespace:
         "--max-length",
         type=int,
         default=int(os.environ.get("OPENJEV_MAX_LENGTH", "4096")),
-        help="Left-truncation limit for the tokenized prompt (torch backend).",
+        help="Max prompt tokens; vLLM uses truncate_prompt_tokens=max_length-1.",
     )
     parser.add_argument(
         "--prompt-format",
         choices=["auto", "chatml", "instruct"],
-        default=os.environ.get("OPENJEV_PROMPT_FORMAT", "auto"),
-        help="Chat wrapper: auto-detect tokenizer chat_template, ChatML, or Instruct.",
+        default=os.environ.get("OPENJEV_PROMPT_FORMAT", "instruct"),
+        help=(
+            "Prompt wrapper: instruct (recommended for System One), chatml, or auto."
+        ),
     )
     parser.add_argument(
-        "--dtype",
-        default=os.environ.get("OPENJEV_DTYPE", "auto"),
-        help="Weight dtype: auto | bfloat16 | float16 | float32 (torch backend).",
+        "--timeout",
+        type=float,
+        default=float(os.environ.get("OPENJEV_VLLM_TIMEOUT", "120")),
+        help="HTTP timeout for vLLM requests (seconds).",
     )
     parser.add_argument(
         "--trust-remote-code",
         action="store_true",
-        help="Pass trust_remote_code=True to transformers (torch backend).",
+        help="Pass trust_remote_code=True when loading the tokenizer.",
     )
     parser.add_argument(
         "--log-level",
@@ -76,7 +66,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--reload",
         action="store_true",
-        help="Auto-reload (dev only; do not use with large model loads).",
+        help="Auto-reload (dev only).",
     )
     return parser.parse_args()
 
@@ -89,13 +79,12 @@ def main() -> None:
     )
     app = create_app(
         model_id=args.model,
-        backend=args.backend,
         vllm_url=args.vllm_url,
         temperature=args.temperature,
         max_length=args.max_length,
         prompt_format=args.prompt_format,
-        dtype=args.dtype,
         trust_remote_code=args.trust_remote_code,
+        timeout=args.timeout,
     )
     uvicorn.run(
         app,
