@@ -57,6 +57,7 @@ def create_decision_engine(
             prompt_format=prompt_format,
             timeout=vllm_timeout,
             max_length=max_length,
+            trust_remote_code=trust_remote_code,
         )
         try:
             engine.health()
