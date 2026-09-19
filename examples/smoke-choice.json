@@ -1,0 +1,13 @@
+{
+  "state": "Double charged on my card. Refund please.",
+  "questions": {
+    "route": {
+      "type": "choice",
+      "instructions": "Route ticket",
+      "criteria": {
+        "billing": "payments",
+        "bugs": "crashes"
+      }
+    }
+  }
+}
