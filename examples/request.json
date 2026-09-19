@@ -1,0 +1,28 @@
+{
+  "state": "Subject: Double charged $49.99 on my card yesterday. Please refund immediately.",
+  "questions": {
+    "route": {
+      "type": "choice",
+      "instructions": "Route this support ticket to the correct team.",
+      "criteria": {
+        "billing": "Payments, invoices, refunds",
+        "bugs": "Crashes and broken functionality",
+        "feature": "Feature requests",
+        "spam": "Unsolicited ads or phishing"
+      }
+    },
+    "urgency": {
+      "type": "score",
+      "instructions": "Rate the user irritation from calm to furious.",
+      "criteria": ["Calm", "Annoyed", "Angry", "Furious"]
+    },
+    "refund": {
+      "type": "noul",
+      "instructions": "Is the user requesting a refund?",
+      "criteria": {
+        "true": "Refund or chargeback intent",
+        "false": "No payment dispute"
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+# vLLM + OpenJev gateway (оптимизация под ~6 GB VRAM, RTX 3050).
+#
+#   docker compose -f docker-compose.vllm.yml up --build
+#
+# Decisions API: http://localhost:8000
+# vLLM OpenAI API (напрямую): http://localhost:8001/v1
+
+services:
+  vllm:
+    # latest (v0.29) падает с UVA на Docker Desktop/Windows; v0.8.x — legacy engine.
+    image: vllm/vllm-openai:v0.8.5
+    container_name: openjev-vllm
+    ports:
+      - "8001:8000"
+    volumes:
+      # Кэш HF с хоста (Qwen уже скачан через uv/torch).
+      - ${USERPROFILE}/.cache/huggingface:/root/.cache/huggingface
+    gpus: all
+    command: >
+      --model Qwen/Qwen2.5-1.5B-Instruct
+      --port 8000
+      --gpu-memory-utilization 0.88
+      --max-model-len 1024
+      --max-num-seqs 8
+      --dtype bfloat16
+      --enforce-eager
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python3",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/v1/models', timeout=5)",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 15
+      start_period: 600s
+
+  openjev-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openjev-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      OPENJEV_BACKEND: vllm
+      OPENJEV_VLLM_URL: http://vllm:8000/v1
+      OPENJEV_MODEL: Qwen/Qwen2.5-1.5B-Instruct
+      OPENJEV_MAX_LENGTH: "1024"
+      OPENJEV_VLLM_TIMEOUT: "120"
+    depends_on:
+      vllm:
+        condition: service_healthy
+
