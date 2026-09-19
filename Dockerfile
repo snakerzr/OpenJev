@@ -18,9 +18,10 @@ COPY openjev /app/openjev
 COPY pyproject.toml README.md /app/
 
 ENV PYTHONPATH=/app \
-    OPENJEV_BACKEND=vllm \
     OPENJEV_VLLM_URL=http://vllm:8000/v1 \
-    OPENJEV_MODEL=Qwen/Qwen2.5-1.5B-Instruct
+    OPENJEV_MODEL=Qwen/Qwen2.5-1.5B-Instruct \
+    OPENJEV_PROMPT_FORMAT=instruct \
+    OPENJEV_MAX_LENGTH=1024
 
 EXPOSE 8000
 

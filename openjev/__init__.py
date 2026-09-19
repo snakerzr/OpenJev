@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "ChoiceResponse",
@@ -22,7 +22,7 @@ __all__ = [
 
 
 def __getattr__(name: str) -> Any:
-    """Ленивый экспорт, чтобы ``import openjev`` не тянул torch."""
+    """Ленивый экспорт тяжёлых подмодулей."""
     if name == "DecisionEngine":
         from openjev.engine import DecisionEngine
 

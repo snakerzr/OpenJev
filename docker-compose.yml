@@ -1,9 +1,13 @@
 # vLLM + OpenJev gateway (оптимизация под ~6 GB VRAM, RTX 3050).
 #
-#   docker compose -f docker-compose.vllm.yml up --build
+#   docker compose up --build
 #
 # Decisions API: http://localhost:8000
 # vLLM OpenAI API (напрямую): http://localhost:8001/v1
+#
+# System One (0 output tokens): для 1.5B чаще лучше instruct, не chatml/auto.
+#   OPENJEV_PROMPT_FORMAT=instruct   — продакшен (см. README)
+#   OPENJEV_PROMPT_FORMAT=chatml     — эксперименты с chat_template
 
 services:
   vllm:
@@ -13,7 +17,6 @@ services:
     ports:
       - "8001:8000"
     volumes:
-      # Кэш HF с хоста (Qwen уже скачан через uv/torch).
       - ${USERPROFILE}/.cache/huggingface:/root/.cache/huggingface
     gpus: all
     command: >
@@ -47,12 +50,11 @@ services:
     volumes:
       - ${USERPROFILE}/.cache/huggingface:/root/.cache/huggingface
     environment:
-      OPENJEV_BACKEND: vllm
       OPENJEV_VLLM_URL: http://vllm:8000/v1
       OPENJEV_MODEL: Qwen/Qwen2.5-1.5B-Instruct
       OPENJEV_MAX_LENGTH: "1024"
+      OPENJEV_PROMPT_FORMAT: instruct
       OPENJEV_VLLM_TIMEOUT: "120"
     depends_on:
       vllm:
         condition: service_healthy
-

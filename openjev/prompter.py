@@ -142,6 +142,9 @@ def render_prompt(
     user_payload = build_user_payload(state, question)
     fmt = resolve_format(prompt_format, tokenizer)
 
+    if fmt is PromptFormat.INSTRUCT:
+        return wrap_instruct(user_payload, system=system)
+
     apply = getattr(tokenizer, "apply_chat_template", None) if tokenizer is not None else None
     if callable(apply) and getattr(tokenizer, "chat_template", None):
         messages = [
@@ -155,12 +158,10 @@ def render_prompt(
                 add_generation_prompt=True,
             )
         except Exception:
-            # Не все шаблоны принимают system role — деградируем на ручной формат.
+            # Не все шаблоны принимают system role — деградируем на ручной ChatML.
             pass
 
-    if fmt is PromptFormat.CHATML:
-        return wrap_chatml(user_payload, system=system)
-    return wrap_instruct(user_payload, system=system)
+    return wrap_chatml(user_payload, system=system)
 
 
 def render_batch(

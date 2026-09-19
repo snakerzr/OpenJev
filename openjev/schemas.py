@@ -93,7 +93,7 @@ class DecisionRequest(_StrictModel):
         ...,
         min_length=1,
         max_length=64,
-        description="Имя вопроса → спецификация. Все вопросы батчатся в один forward-pass.",
+        description="Имя вопроса → спецификация. Все вопросы батчатся в один запрос к vLLM.",
     )
 
     model_config = ConfigDict(
@@ -185,7 +185,7 @@ class HealthResponse(BaseModel):
     """Диагностика готовности инференс-сервера."""
 
     status: Literal["ok", "starting"]
-    backend: Literal["torch", "vllm"] = "torch"
+    backend: Literal["vllm"] = "vllm"
     model: str
     device: str
     dtype: str
