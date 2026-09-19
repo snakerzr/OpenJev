@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import httpx
+from transformers import AutoTokenizer, PreTrainedTokenizerBase
 
 from openjev.decoding import option_logprobs_from_top, pack_answer, softmax_from_logprobs
 from openjev.errors import EngineError
@@ -41,6 +42,7 @@ class VLLMDecisionEngine:
         logprobs: int = DEFAULT_LOGPROBS,
         prompt_format: str = "auto",
         max_length: int = 4096,
+        trust_remote_code: bool = False,
     ) -> None:
         if temperature <= 0:
             raise EngineError("temperature must be > 0")
@@ -59,6 +61,15 @@ class VLLMDecisionEngine:
         self.max_length = int(max_length)
         # vLLM left-truncates prompt; reserve 1 slot for max_tokens=1 generation.
         self.truncate_prompt_tokens = self.max_length - 1
+        self.trust_remote_code = trust_remote_code
+
+        try:
+            self.tokenizer: PreTrainedTokenizerBase = AutoTokenizer.from_pretrained(
+                model_name,
+                trust_remote_code=trust_remote_code,
+            )
+        except Exception as exc:  # noqa: BLE001
+            raise EngineError(f"failed to load tokenizer for {model_name!r}: {exc}") from exc
 
         self.device_label = f"vllm:{self.base_url}"
         self.torch_dtype = "vllm"
@@ -106,7 +117,7 @@ class VLLMDecisionEngine:
         prompts_map = render_batch(
             state,
             questions,
-            tokenizer=None,
+            tokenizer=self.tokenizer,
             prompt_format=self.prompt_format,
         )
         prepared = [

@@ -25,6 +25,9 @@ openjev = "openjev.cli:main"
 benchmark = [
     "httpx>=0.27.0",
 ]
+dev = [
+    "pytest>=8.0.0",
+]
 
 [tool.uv]
 package = true

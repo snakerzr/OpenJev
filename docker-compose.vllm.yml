@@ -44,6 +44,8 @@ services:
     container_name: openjev-gateway
     ports:
       - "8000:8000"
+    volumes:
+      - ${USERPROFILE}/.cache/huggingface:/root/.cache/huggingface
     environment:
       OPENJEV_BACKEND: vllm
       OPENJEV_VLLM_URL: http://vllm:8000/v1

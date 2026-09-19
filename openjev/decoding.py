@@ -43,10 +43,19 @@ def option_logprobs_from_top(top_logprobs: dict[str, float], num_options: int) -
     return [max_logprob_for_letter(top_logprobs, LETTERS[i]) for i in range(num_options)]
 
 
-def softmax_from_logprobs(logprobs: Sequence[float], temperature: float) -> list[float]:
+def softmax_from_logprobs(
+    logprobs: Sequence[float],
+    temperature: float,
+    *,
+    strict_floor_check: bool = True,
+) -> list[float]:
     """Numerically stable softmax по срезу logprobs с температурой."""
     if temperature <= 0:
         raise EngineError("temperature must be > 0")
+    if strict_floor_check and logprobs and all(float(lp) <= LOGPROB_FLOOR for lp in logprobs):
+        raise EngineError(
+            "Prediction degraded: none of candidate tokens found in top_logprobs"
+        )
     scaled = [float(lp) / temperature for lp in logprobs]
     peak = max(scaled)
     exps = [math.exp(x - peak) for x in scaled]

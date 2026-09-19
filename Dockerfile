@@ -11,7 +11,8 @@ RUN pip install --no-cache-dir \
     "fastapi>=0.115.0" \
     "uvicorn[standard]>=0.32.0" \
     "httpx>=0.27.0" \
-    "pydantic>=2.9.0"
+    "pydantic>=2.9.0" \
+    "transformers>=4.45.0"
 
 COPY openjev /app/openjev
 COPY pyproject.toml README.md /app/
