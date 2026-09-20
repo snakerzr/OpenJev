@@ -19,3 +19,9 @@ hf_cache/
 *.safetensors
 *.gguf
 .DS_Store
+distilled_model/
+distilled_model_smoke/
+distilled_smoke/
+scripts/distill_dataset.jsonl
+scripts/*_smoke.jsonl
+.probe_models.json

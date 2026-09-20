@@ -20,13 +20,14 @@ services:
       - ${USERPROFILE}/.cache/huggingface:/root/.cache/huggingface
     gpus: all
     command: >
-      --model Qwen/Qwen2.5-1.5B-Instruct
+      --model ${OPENJEV_MODEL:-Qwen/Qwen2.5-1.5B-Instruct}
       --port 8000
       --gpu-memory-utilization 0.88
       --max-model-len 1024
       --max-num-seqs 8
       --dtype bfloat16
       --enforce-eager
+      --enable-prefix-caching
     healthcheck:
       test:
         [
@@ -51,7 +52,7 @@ services:
       - ${USERPROFILE}/.cache/huggingface:/root/.cache/huggingface
     environment:
       OPENJEV_VLLM_URL: http://vllm:8000/v1
-      OPENJEV_MODEL: Qwen/Qwen2.5-1.5B-Instruct
+      OPENJEV_MODEL: ${OPENJEV_MODEL:-Qwen/Qwen2.5-1.5B-Instruct}
       OPENJEV_MAX_LENGTH: "1024"
       OPENJEV_PROMPT_FORMAT: instruct
       OPENJEV_VLLM_TIMEOUT: "120"
